@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Energy Community Maturity Check</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one centred working column (max 920px) under a header band; questions run as a ladder of five levels;
+   results use a two-column grid (chart | scores) that stacks to one column on phones. */
+:root {
+  /* ECHO logo palette: grey #707070, orange #F49101, blue #2BA9E3, green #93C121.
+     The brand hues are used for fills and chart marks; darker shades of the same hues carry text and buttons, for contrast. */
+  --bg: #F5F7F8;
+  --surface: #FFFFFF;
+  --ink: #2B2E30;
+  --muted: #666A6D;
+  --line: #DADFE2;
+  --blue: #2BA9E3;
+  --orange: #F49101;
+  --green: #93C121;
+  --grey: #707070;
+  --on-brand: #1F2326;
+  --logo-plate: #FFFFFF;
+  --accent: #1373A8;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E2F3FB;
+  --bench: #A35F00;
+  --bench-soft: #FEF0DB;
+  --good: #4E7410;
+  --warn: #A35F00;
+  --f-display: "Times New Roman", Times, "Liberation Serif", "Nimbus Roman", serif;
+  --f-body: "Times New Roman", Times, "Liberation Serif", "Nimbus Roman", serif;
+  --f-data: "Times New Roman", Times, "Liberation Serif", "Nimbus Roman", serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121517; --surface: #1A1F22; --ink: #E7EAEC; --muted: #A2A8AC; --line: #2F373C;
+    --accent: #4DB8EA; --accent-ink: #0B1A22; --accent-soft: #123447;
+    --bench: #F7A733; --bench-soft: #3A2A12; --good: #A9D33F; --warn: #F7A733;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121517; --surface: #1A1F22; --ink: #E7EAEC; --muted: #A2A8AC; --line: #2F373C;
+  --accent: #4DB8EA; --accent-ink: #0B1A22; --accent-soft: #123447;
+  --bench: #F7A733; --bench-soft: #3A2A12; --good: #A9D33F; --warn: #F7A733;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.label {
+  font-family: var(--f-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+
+/* ---------- header ---------- */
+.top { background: var(--surface); border-bottom: 1px solid var(--line); }
+.top .wrap { padding-block: 18px 14px; display: grid; gap: 12px; }
+.top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-text { display: grid; gap: 2px; min-width: 0; }
+.brand h1 { font-size: 1.5rem; font-weight: 700; }
+.logo { display: block; flex: none; height: 64px; width: auto; max-width: 100%; background: var(--logo-plate); border-radius: 6px; padding: 2px 4px; }
+@media (max-width: 520px) { .brand { flex-wrap: wrap; gap: 8px; } .logo { height: 52px; } }
+.langs { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.langs button {
+  border: 0; background: transparent; border-radius: 999px; padding: 4px 12px; cursor: pointer;
+  font-weight: 600; font-size: 0.85rem; color: var(--muted);
+}
+.langs button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.proto {
+  font-size: 0.875rem;
+  background: var(--bench-soft);
+  border-left: 3px solid var(--orange);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+main.wrap { padding-block: 32px 48px; }
+
+/* ---------- buttons & fields ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 18px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.quiet { border-color: transparent; background: transparent; color: var(--muted); }
+.btn.quiet:hover { color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.field { display: grid; gap: 6px; max-width: 420px; }
+.field label { font-weight: 600; font-size: 0.95rem; }
+.field input {
+  min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+}
+.field input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* ---------- intro ---------- */
+.intro { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.intro-main { display: grid; gap: 22px; }
+.display { font-size: clamp(1.75rem, 4.2vw, 2.5rem); font-weight: 700; line-height: 1.12; }
+.lede { font-size: 1.1rem; color: var(--muted); max-width: 60ch; }
+.note { font-size: 0.9rem; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+.note svg { flex: none; margin-top: 3px; }
+.areas { display: grid; gap: 12px; }
+.areas ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.areas li { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.code {
+  font-family: var(--f-data); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--accent); padding-top: 2px;
+}
+.areas strong { display: block; font-family: var(--f-display); font-weight: 600; }
+.areas .desc { display: block; font-size: 0.9rem; color: var(--muted); }
+.areas .meta { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+/* ---------- questionnaire ---------- */
+.steps { overflow-x: auto; margin-bottom: 28px; }
+.steps ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 6px; }
+.step {
+  width: 100%; text-align: left; cursor: pointer; display: grid; gap: 2px;
+  border: 0; border-top: 3px solid var(--line); background: transparent; padding: 8px 2px 4px;
+}
+.step .step-name { font-weight: 600; font-size: 0.92rem; }
+.step .step-prog { font-family: var(--f-data); font-size: 0.75rem; color: var(--muted); }
+.step.done { border-top-color: color-mix(in srgb, var(--green) 55%, var(--surface)); }
+.step.done .step-prog { color: var(--good); }
+.step.current { border-top-color: var(--blue); }
+.qsec { display: grid; gap: 18px; }
+.qsec > .lede { margin-bottom: 8px; }
+.eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.qcard { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); min-width: 0; }
+.q { margin: 0; padding: 0; border: 0; min-width: 0; }
+.q legend { padding: 0; margin: 0 0 12px; width: 100%; }
+.opts { display: grid; gap: 6px; }
+.qhead { display: flex; gap: 12px; align-items: baseline; }
+.qhead .qid { font-family: var(--f-data); font-size: 0.8rem; color: var(--muted); flex: none; }
+.qhead .qtext { font-family: var(--f-display); font-weight: 600; font-size: 1.08rem; line-height: 1.35; }
+.ladder { display: grid; gap: 6px; }
+.rung {
+  position: relative; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 12px; align-items: center;
+  padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--surface);
+}
+.rung input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rung:hover { border-color: var(--accent); }
+.rung .lvl {
+  width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--f-data); font-weight: 600; font-size: 0.9rem;
+  border: 1.5px solid var(--line); color: var(--muted); background: var(--bg);
+}
+.rung .txt { font-size: 0.97rem; }
+.rung:has(input:checked) { border-color: var(--blue); background: var(--accent-soft); }
+.rung:has(input:checked) .lvl { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.rung:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rung.na { grid-template-columns: minmax(0, 1fr); border-style: dashed; padding-block: 7px; }
+.rung.na .txt { font-size: 0.9rem; color: var(--muted); }
+.rung.na:has(input:checked) { background: var(--bg); border-style: solid; border-color: var(--muted); }
+.rung.na:has(input:checked) .txt { color: var(--ink); }
+.qnav { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 8px; }
+.count { font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ---------- results ---------- */
+.res { display: grid; gap: 36px; }
+.res-head { display: grid; gap: 8px; }
+.res-head .sub { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; color: var(--muted); font-size: 0.92rem; }
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+  background: var(--bench-soft); color: var(--ink); border: 1px solid var(--bench);
+}
+.scorecard {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px 36px; align-items: center;
+  padding: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.big { display: grid; gap: 4px; }
+.big .valrow { display: flex; align-items: baseline; gap: 6px; }
+.big .value { font-family: var(--f-display); font-variant-numeric: tabular-nums; font-size: 3.6rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.big .of { font-family: var(--f-data); font-size: 1.1rem; color: var(--muted); }
+.stagebox { display: grid; gap: 6px; justify-items: start; }
+.pill {
+  display: inline-block; padding: 3px 12px; border-radius: 999px; font-weight: 700; font-family: var(--f-display);
+  background: var(--green); color: var(--on-brand);
+}
+.stagebox p { color: var(--muted); max-width: 52ch; }
+.scale { grid-column: 1 / -1; display: grid; gap: 6px; padding-top: 4px; }
+.bandnames { display: flex; }
+.bandnames span { padding: 0 6px 0 2px; font-size: 0.8rem; font-weight: 600; color: var(--muted); min-width: 0; line-height: 1.25; }
+.track { position: relative; height: 14px; display: flex; border-radius: 7px; }
+.band { height: 100%; }
+.band:first-child { border-radius: 7px 0 0 7px; }
+.band:last-of-type { border-radius: 0 7px 7px 0; }
+.band.b0 { background: color-mix(in srgb, var(--green) 28%, var(--surface)); }
+.band.b1 { background: color-mix(in srgb, var(--green) 60%, var(--surface)); }
+.band.b2 { background: var(--green); }
+.band.b3 { background: var(--green); }
+.marker { position: absolute; top: -6px; bottom: -6px; width: 0; }
+.marker::before {
+  content: ""; position: absolute; left: -2px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: var(--ink);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.ticks { position: relative; height: 1.2em; font-family: var(--f-data); font-size: 0.75rem; color: var(--muted); }
+.ticks span { position: absolute; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; }
+.ticks span:last-child { transform: translateX(-100%); }
+
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.panel-head h2 { font-size: 1.15rem; font-weight: 600; }
+.selectwrap { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+.selectwrap select {
+  min-height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); padding: 0 8px; color: var(--ink);
+}
+.radar svg { width: 100%; height: auto; display: block; }
+.radar .ring { fill: none; stroke: var(--line); stroke-width: 1; }
+.radar .ring.outer { stroke-width: 1.5; }
+.radar .spoke { stroke: var(--line); stroke-width: 1; fill: none; }
+.radar .ringlbl { fill: var(--muted); font-family: var(--f-data); font-size: 10px; }
+.radar .axlbl { fill: var(--ink); font-family: var(--f-body); font-size: 13px; font-weight: 600; }
+.radar .bench { fill: none; stroke: var(--orange); stroke-width: 2; stroke-dasharray: 6 4; }
+.radar .you { fill: var(--blue); fill-opacity: 0.22; stroke: var(--blue); stroke-width: 2.5; stroke-linejoin: round; }
+.radar .youpt { fill: var(--blue); stroke: var(--surface); stroke-width: 1.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.85rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 0; border-top: 3px solid var(--blue); display: inline-block; }
+.sw.b { border-top: 3px dashed var(--orange); }
+
+.dims { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.dimrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.dimrow .dname { font-weight: 600; min-width: 0; }
+.dimrow .vals { display: flex; gap: 14px; font-family: var(--f-data); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.vals .you-v { color: var(--ink); font-weight: 600; min-width: 2.2em; text-align: right; }
+.vals .b-v { color: var(--bench); min-width: 2.2em; text-align: right; }
+.vals .gap { min-width: 3.2em; text-align: right; }
+.gap.neg { color: var(--warn); }
+.gap.pos { color: var(--good); }
+.dimrow .bar { grid-column: 1 / -1; position: relative; height: 10px; border-radius: 5px; background: var(--bg); border: 1px solid var(--line); }
+.bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--blue); }
+.bar .tick { position: absolute; top: -5px; bottom: -5px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--orange); }
+.dims-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding-bottom: 6px; }
+.dims-head .vals { display: flex; gap: 14px; }
+.dims-head .vals span { min-width: 2.2em; text-align: right; }
+.dims-head .vals span:last-child { min-width: 3.2em; }
+
+.advice { display: grid; gap: 14px; }
+.advice-head { display: grid; gap: 2px; }
+.advice-head h2 { font-size: 1.15rem; font-weight: 600; }
+.advice-head p { color: var(--muted); font-size: 0.92rem; }
+.advice-list { display: grid; gap: 10px; }
+.tip {
+  display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) auto; gap: 6px 12px; align-items: baseline;
+  padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.tip h3 { font-size: 1rem; font-weight: 600; }
+.tip .chip { font-family: var(--f-data); font-size: 0.85rem; font-weight: 600; }
+.tip .body { grid-column: 2 / -1; display: grid; gap: 8px; }
+.tip .learn { font-size: 0.88rem; color: var(--muted); }
+.tip .learn a { color: var(--accent); font-weight: 600; }
+.tip .pending { font-style: italic; }
+
+.res-actions { display: grid; gap: 10px; }
+.confirm {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px;
+  border: 1px solid var(--warn); border-radius: 8px; background: var(--surface);
+}
+.confirm p { font-weight: 600; margin-right: auto; }
+.copybox { display: grid; gap: 6px; }
+.copybox textarea {
+  width: 100%; min-height: 140px; font-family: var(--f-data); font-size: 0.8rem; padding: 8px;
+  border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+}
+.toast { font-size: 0.9rem; color: var(--accent); font-weight: 600; align-self: center; }
+
+.error {
+  padding: 20px; border: 1px solid var(--warn); border-radius: var(--radius); background: var(--surface); display: grid; gap: 8px;
+}
+
+/* ---------- footer ---------- */
+footer { border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 24px 40px; display: grid; gap: 16px; font-size: 0.85rem; color: var(--muted); }
+footer details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; }
+footer summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+footer details[open] summary { margin-bottom: 10px; }
+.files { overflow-x: auto; }
+.files table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+.files th, .files td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.files td:first-child { font-family: var(--f-data); color: var(--ink); white-space: nowrap; }
+.files td.n { font-family: var(--f-data); text-align: right; white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .intro, .compare { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .scorecard { grid-template-columns: minmax(0, 1fr); padding: 18px; }
+  .tip { grid-template-columns: minmax(0, 1fr) auto; }
+  .tip .code { grid-column: 1 / -1; }
+  .tip .body { grid-column: 1 / -1; }
+  .qcard { padding: 16px 14px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rung, .btn, .step { transition: border-color .15s, background-color .15s; }
+}
+@media print {
+  .langs, .proto, .res-actions, footer details, .steps { display: none !important; }
+  body { background: #fff; color: #000; }
+  .scorecard, .tip { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand">
+        <img class="logo" alt="ECHO" width="300" height="147" src="data:image/png;base64,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">
+        <div class="brand-text">
+          <span class="label" id="projectTag">ECHO</span>
+          <h1 id="appTitle">Energy Community Maturity Check</h1>
+        </div>
+      </div>
+      <div class="langs" id="langs" role="group" aria-label="Language"></div>
+    </div>
+    <p class="proto" id="protoNote">Prototype</p>
+  </div>
+</header>
+
+<main class="wrap" id="view" aria-live="polite">
+  <p class="lede">Loading…</p>
+</main>
+
+<footer>
+  <div class="wrap" id="foot"></div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // Every piece of content comes from these files. Edit the CSVs, not this code.
+  const FILES = {
+    ui: 'data/ui.csv',
+    dimensions: 'data/dimensions.csv',
+    questions: 'data/questions.csv',
+    stages: 'data/stages.csv',
+    benchmarks: 'data/benchmarks.csv',
+    advice: 'data/advice.csv',
+    example: 'data/example.csv'
+  };
+  const FILE_INFO = {
+    ui: 'Interface text, one column per language',
+    dimensions: 'The five areas and their weights',
+    questions: 'Questions and the five level descriptions',
+    stages: 'Maturity stages and the score where each starts',
+    benchmarks: 'Average score per stage and area (pilot data)',
+    advice: 'Next-step advice per area and score band',
+    example: 'Answers of the fictional example community'
+  };
+  const STORE_KEY = 'echo-maturity-check-v1';
+  const EMBEDDED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+
+  const D = {};
+  const S = { lang: 'en', name: '', answers: {}, view: 'intro', step: 0, example: false, compare: null };
+  const view = document.getElementById('view');
+
+  // ---------- CSV ----------
+  function parseCSV(text) {
+    text = text.replace(/^﻿/, '');
+    const first = text.split(/\r?\n/, 1)[0];
+    // Excel with a Greek or other European locale saves with semicolons.
+    const delim = first.split(';').length > first.split(',').length ? ';' : ',';
+    const rows = []; let row = [], field = '', quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
+        else field += c;
+      } else if (c === '"') quoted = true;
+      else if (c === delim) { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); rows.push(row); row = []; field = '';
+      } else field += c;
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row); }
+    const header = (rows.shift() || []).map(h => h.trim());
+    return rows
+      .filter(r => r.some(v => v.trim() !== ''))
+      .map(r => Object.fromEntries(header.map((h, i) => [h, (r[i] == null ? '' : r[i]).trim()])));
+  }
+  const num = v => { const n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(n) ? null : n; };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ---------- text helpers ----------
+  function t(key, vars) {
+    const r = D.uiMap && D.uiMap[key];
+    let s = r ? (r[S.lang] || r.en || key) : key;
+    if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+    return s;
+  }
+  function f(row, base) { return (row && (row[base + '_' + S.lang] || row[base + '_en'])) || ''; }
+  function fmt(v, digits) {
+    if (v == null) return '–';
+    try { return v.toLocaleString(S.lang, { minimumFractionDigits: digits == null ? 1 : digits, maximumFractionDigits: digits == null ? 1 : digits }); }
+    catch (e) { return v.toFixed(digits == null ? 1 : digits); }
+  }
+  function fmtGap(v) {
+    if (v == null) return '–';
+    const s = fmt(Math.abs(v));
+    if (Math.abs(v) < 0.05) return '±' + fmt(0);
+    return (v > 0 ? '+' : '−') + s;
+  }
+
+  // ---------- state ----------
+  function restore() {
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { s = null; }
+    if (!s || typeof s !== 'object') return false;
+    if (typeof s.lang === 'string') S.lang = s.lang;
+    if (typeof s.name === 'string') S.name = s.name;
+    if (s.answers && typeof s.answers === 'object') S.answers = s.answers;
+    if (['intro', 'questions', 'results'].includes(s.view)) S.view = s.view;
+    if (Number.isInteger(s.step)) S.step = s.step;
+    S.example = !!s.example;
+    return true;
+  }
+  function persist() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        lang: S.lang, name: S.name, answers: S.answers, view: S.view, step: S.step, example: S.example
+      }));
+    } catch (e) { /* storage unavailable: the tool still works for this visit */ }
+  }
+
+  // ---------- data preparation ----------
+  function prepare() {
+    D.uiMap = {};
+    D.ui.forEach(r => { D.uiMap[r.key] = r; });
+    D.langs = Object.keys(D.ui[0] || { en: 1 }).filter(k => k !== 'key');
+    D.dims = D.dimensions;
+    D.qByDim = {};
+    D.dims.forEach(d => { D.qByDim[d.id] = []; });
+    D.questions.forEach(q => { (D.qByDim[q.dimension] = D.qByDim[q.dimension] || []).push(q); });
+    D.qs = D.dims.flatMap(d => D.qByDim[d.id]);
+    D.stagesSorted = D.stages.slice().sort((a, b) => num(a.min_score) - num(b.min_score));
+    D.bench = {};
+    D.benchmarks.forEach(r => {
+      (D.bench[r.stage] = D.bench[r.stage] || {})[r.dimension] = { score: num(r.score), n: r.n, source: r.source };
+    });
+    D.adviceBy = {};
+    D.advice.forEach(r => { (D.adviceBy[r.dimension] = D.adviceBy[r.dimension] || []).push(r); });
+    Object.values(D.adviceBy).forEach(list => list.sort((a, b) => num(a.max_score) - num(b.max_score)));
+  }
+
+  // ---------- scoring ----------
+  function dimScore(d) {
+    let s = 0, w = 0;
+    (D.qByDim[d.id] || []).forEach(q => {
+      const a = S.answers[q.id];
+      if (a >= 1 && a <= 5) { const wt = num(q.weight); const ww = wt == null ? 1 : wt; s += a * ww; w += ww; }
+    });
+    return w ? s / w : null;
+  }
+  function overallScore() {
+    let s = 0, w = 0;
+    D.dims.forEach(d => {
+      const v = dimScore(d);
+      if (v != null) { const wt = num(d.weight); const ww = wt == null ? 1 : wt; s += v * ww; w += ww; }
+    });
+    return w ? s / w : null;
+  }
+  function stageFor(v) {
+    let st = D.stagesSorted[0];
+    if (v == null) return st;
+    D.stagesSorted.forEach(x => { if (v >= num(x.min_score)) st = x; });
+    return st;
+  }
+  function counts() {
+    let a = 0, scored = 0;
+    D.qs.forEach(q => { const v = S.answers[q.id]; if (v != null) { a++; if (v >= 1) scored++; } });
+    return { n: D.qs.length, a, scored };
+  }
+  function dimProgress(d) {
+    const qs = D.qByDim[d.id] || [];
+    const a = qs.filter(q => S.answers[q.id] != null).length;
+    return { a, n: qs.length, done: qs.length > 0 && a === qs.length };
+  }
+  function adviceFor(d, v) {
+    const list = D.adviceBy[d.id] || [];
+    return list.find(r => v <= num(r.max_score)) || list[list.length - 1] || null;
+  }
+
+  // ---------- chrome (header + footer) ----------
+  function renderChrome() {
+    document.documentElement.lang = S.lang;
+    document.getElementById('projectTag').textContent = t('project_tag');
+    document.getElementById('appTitle').textContent = t('app_title');
+    document.getElementById('protoNote').textContent = t('prototype_note');
+    const langs = document.getElementById('langs');
+    langs.innerHTML = D.langs.map(l => {
+      const r = D.uiMap.lang_label || {}; const nm = D.uiMap.lang_name || {};
+      return '<button type="button" data-lang="' + esc(l) + '" aria-pressed="' + (l === S.lang) + '" title="' + esc(nm[l] || l) + '">' + esc(r[l] || l.toUpperCase()) + '</button>';
+    }).join('');
+    const rowsInfo = Object.keys(FILES).map(k =>
+      '<tr><td>' + esc(FILES[k]) + '</td><td>' + esc(FILE_INFO[k]) + '</td><td class="n">' + (D[k] ? D[k].length : 0) + ' ' + esc(t('rows')) + '</td></tr>'
+    ).join('');
+    document.getElementById('foot').innerHTML =
+      '<details><summary>' + esc(t('how_title')) + '</summary><p style="margin-bottom:10px">' + esc(t('how_text')) +
+      '</p><div class="files"><table><tbody>' + rowsInfo + '</tbody></table></div></details>' +
+      '<p>' + esc(t('made_by')) + '</p><p>' + esc(t('funding')) + '</p>';
+  }
+
+  // ---------- intro ----------
+  const LOCK = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+
+  function renderIntro() {
+    const c = counts();
+    const resume = c.a > 0 && !S.example;
+    view.innerHTML =
+      '<section class="intro">' +
+        '<div class="intro-main">' +
+          '<h1 class="display">' + esc(t('intro_title')) + '</h1>' +
+          '<p class="lede">' + esc(t('intro_text', { n: D.qs.length })) + '</p>' +
+          '<div class="field"><label for="cname">' + esc(t('name_label')) + '</label>' +
+            '<input id="cname" type="text" maxlength="120" autocomplete="organization" value="' + esc(S.example ? '' : S.name) + '" placeholder="' + esc(t('name_placeholder')) + '"></div>' +
+          '<div class="actions">' +
+            '<button type="button" class="btn primary" data-action="start">' + esc(resume ? t('resume') : t('start')) + '</button>' +
+            '<button type="button" class="btn" data-action="example">' + esc(t('example')) + '</button>' +
+          '</div>' +
+          '<p class="note">' + LOCK + '<span>' + esc(t('privacy_note')) + '</span></p>' +
+        '</div>' +
+        '<aside class="areas"><h2 class="label">' + esc(t('areas_title')) + '</h2><ol>' +
+          D.dims.map(d =>
+            '<li><span class="code">' + esc(d.id) + '</span><div><strong>' + esc(f(d, 'name')) + '</strong>' +
+            '<span class="desc">' + esc(f(d, 'description')) + '</span>' +
+            '<span class="meta">' + esc(t('questions_count', { n: (D.qByDim[d.id] || []).length })) + '</span></div></li>'
+          ).join('') +
+        '</ol></aside>' +
+      '</section>';
+  }
+
+  // ---------- questionnaire ----------
+  function questionHTML(q) {
+    const a = S.answers[q.id];
+    let rungs = '';
+    for (let l = 1; l <= 5; l++) {
+      rungs += '<label class="rung"><input type="radio" name="' + esc(q.id) + '" value="' + l + '"' + (a === l ? ' checked' : '') + '>' +
+        '<span class="lvl">' + l + '</span><span class="txt">' + esc(f(q, 'level' + l)) + '</span></label>';
+    }
+    return '<div class="qcard"><fieldset class="q" id="q-' + esc(q.id) + '">' +
+      '<legend><span class="qhead"><span class="qid">' + esc(q.id) + '</span><span class="qtext">' + esc(f(q, 'question')) + '</span></span></legend>' +
+      '<div class="opts"><div class="ladder">' + rungs + '</div>' +
+      '<label class="rung na"><input type="radio" name="' + esc(q.id) + '" value="0"' + (a === 0 ? ' checked' : '') + '><span class="txt">' + esc(t('dont_know')) + '</span></label></div>' +
+      '</fieldset></div>';
+  }
+  function stepsHTML(current) {
+    return '<nav class="steps"><ol>' + D.dims.map((d, j) => {
+      const p = dimProgress(d);
+      return '<li><button type="button" class="step' + (j === current ? ' current' : '') + (p.done ? ' done' : '') + '" data-action="goto" data-step="' + j + '"' +
+        (j === current ? ' aria-current="step"' : '') + '>' +
+        '<span class="step-name">' + esc(f(d, 'short')) + '</span>' +
+        '<span class="step-prog" data-prog="' + esc(d.id) + '">' + p.a + '/' + p.n + '</span></button></li>';
+    }).join('') + '</ol></nav>';
+  }
+  function renderQuestions() {
+    const i = Math.max(0, Math.min(S.step, D.dims.length - 1));
+    S.step = i;
+    const d = D.dims[i];
+    const c = counts();
+    const last = i === D.dims.length - 1;
+    view.innerHTML = stepsHTML(i) +
+      '<section class="qsec">' +
+        '<p class="eyebrow">' + esc(t('step_of', { i: i + 1, n: D.dims.length })) + '</p>' +
+        '<h1 class="display">' + esc(f(d, 'name')) + '</h1>' +
+        '<p class="lede">' + esc(f(d, 'description')) + '</p>' +
+        (D.qByDim[d.id] || []).map(questionHTML).join('') +
+        '<div class="qnav">' +
+          '<button type="button" class="btn" data-action="prev"' + (i === 0 ? ' disabled' : '') + '>' + esc(t('back')) + '</button>' +
+          '<span class="count" id="count">' + esc(t('answered', { a: c.a, n: c.n })) + '</span>' +
+          (last
+            ? '<button type="button" class="btn primary" data-action="results">' + esc(t('see_results')) + '</button>'
+            : '<button type="button" class="btn primary" data-action="next">' + esc(t('next')) + '</button>') +
+        '</div>' +
+      '</section>';
+  }
+  function refreshProgress() {
+    D.dims.forEach(d => {
+      const p = dimProgress(d);
+      const el = view.querySelector('[data-prog="' + d.id + '"]');
+      if (el) { el.textContent = p.a + '/' + p.n; el.parentElement.classList.toggle('done', p.done); }
+    });
+    const c = counts();
+    const el = document.getElementById('count');
+    if (el) el.textContent = t('answered', { a: c.a, n: c.n });
+  }
+
+  // ---------- results ----------
+  function radarSVG(rows) {
+    const n = rows.length, R = 112, LR = R + 18;
+    const ang = i => (-90 + i * 360 / n) * Math.PI / 180;
+    const pt = (v, i) => [Math.cos(ang(i)) * R * v / 5, Math.sin(ang(i)) * R * v / 5];
+    const pts = vals => vals.map((v, i) => pt(v == null ? 0 : v, i).map(x => x.toFixed(1)).join(',')).join(' ');
+    let g = '';
+    for (let r = 1; r <= 5; r++) g += '<polygon class="ring' + (r === 5 ? ' outer' : '') + '" points="' + pts(rows.map(() => r)) + '"/>';
+    rows.forEach((_, i) => { const p = pt(5, i); g += '<line class="spoke" x1="0" y1="0" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; });
+    for (let r = 1; r <= 5; r++) g += '<text class="ringlbl" x="5" y="' + (-R * r / 5 + 11).toFixed(1) + '">' + r + '</text>';
+    const b = rows.map(r => r.b == null ? null : r.b);
+    if (b.some(v => v != null)) g += '<polygon class="bench" points="' + pts(b) + '"/>';
+    if (rows.some(r => r.you != null)) {
+      g += '<polygon class="you" points="' + pts(rows.map(r => r.you)) + '"/>';
+      rows.forEach((r, i) => { if (r.you != null) { const p = pt(r.you, i); g += '<circle class="youpt" r="4" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '"/>'; } });
+    }
+    rows.forEach((r, i) => {
+      const a = ang(i), x = Math.cos(a) * LR, y = Math.sin(a) * LR;
+      const anchor = Math.abs(x) < 12 ? 'middle' : (x > 0 ? 'start' : 'end');
+      const dy = y < -20 ? -2 : (y > 20 ? 12 : 5);
+      g += '<text class="axlbl" text-anchor="' + anchor + '" x="' + x.toFixed(1) + '" y="' + (y + dy).toFixed(1) + '">' + esc(f(r.d, 'short')) + '</text>';
+    });
+    const label = rows.map(r => f(r.d, 'short') + ' ' + fmt(r.you)).join(', ');
+    return '<svg viewBox="-215 -150 430 290" role="img" aria-label="' + esc(label) + '">' + g + '</svg>';
+  }
+
+  function compareHTML() {
+    const cmp = D.stagesSorted.find(s => s.id === S.compare) || D.stagesSorted[0];
+    const bset = D.bench[cmp.id] || {};
+    const rows = D.dims.map(d => ({ d, you: dimScore(d), b: bset[d.id] ? bset[d.id].score : null }));
+    const nVals = Object.values(bset).map(x => x.n).filter(Boolean);
+    const n = nVals.length ? nVals[0] : '–';
+    const options = D.stagesSorted.map(s => '<option value="' + esc(s.id) + '"' + (s.id === cmp.id ? ' selected' : '') + '>' + esc(f(s, 'name')) + '</option>').join('');
+    const dimRows = rows.map(r => {
+      const gap = (r.you != null && r.b != null) ? r.you - r.b : null;
+      const gcls = gap == null ? '' : (gap < -0.05 ? ' neg' : (gap > 0.05 ? ' pos' : ''));
+      return '<div class="dimrow">' +
+        '<span class="dname">' + esc(f(r.d, 'name')) + '</span>' +
+        '<span class="vals"><span class="you-v">' + (r.you == null ? '–' : fmt(r.you)) + '</span><span class="b-v">' + fmt(r.b) + '</span><span class="gap' + gcls + '">' + fmtGap(gap) + '</span></span>' +
+        '<span class="bar" aria-hidden="true">' +
+          (r.you != null ? '<span class="fill" style="width:' + (r.you / 5 * 100).toFixed(1) + '%"></span>' : '') +
+          (r.b != null ? '<span class="tick" style="left:' + (r.b / 5 * 100).toFixed(1) + '%"></span>' : '') +
+        '</span>' +
+        '</div>';
+    }).join('');
+    return '<div class="compare">' +
+      '<div class="panel radar">' +
+        '<div class="panel-head"><h2>' + esc(t('results_title')) + '</h2>' +
+          '<label class="selectwrap" for="cmpSel">' + esc(t('compare_with')) + ' <select id="cmpSel">' + options + '</select></label></div>' +
+        radarSVG(rows) +
+        '<div class="legend"><span><i class="sw"></i>' + esc(t('you_legend')) + '</span>' +
+          '<span><i class="sw b"></i>' + esc(t('bench_legend', { stage: f(cmp, 'name'), n: n })) + '</span></div>' +
+      '</div>' +
+      '<div class="panel">' +
+        '<div class="panel-head"><h2>' + esc(t('by_area')) + '</h2></div>' +
+        '<div class="dims-head label"><span>' + esc(t('col_area')) + '</span><span class="vals"><span>' + esc(t('col_you')) + '</span><span>' + esc(t('col_bench')) + '</span><span>' + esc(t('col_gap')) + '</span></span></div>' +
+        '<div class="dims">' + dimRows + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderResults() {
+    const c = counts();
+    const ov = overallScore();
+    const st = stageFor(ov);
+    if (!S.compare || !D.stagesSorted.some(s => s.id === S.compare)) S.compare = st.id;
+    const name = S.example ? t('example_name') : (S.name || '');
+
+    // stage scale
+    const bands = D.stagesSorted.map((s, k) => {
+      const from = Math.max(1, num(s.min_score));
+      const next = D.stagesSorted[k + 1];
+      const to = next ? num(next.min_score) : 5;
+      const w = Math.max(0, (to - from) / 4 * 100);
+      return { w: w.toFixed(2), k: Math.min(k, 3), name: f(s, 'name') };
+    });
+    const bandNames = bands.map(b => '<span style="width:' + b.w + '%">' + esc(b.name) + '</span>').join('');
+    const bandBars = bands.map(b => '<span class="band b' + b.k + '" style="width:' + b.w + '%"></span>').join('');
+    const ticks = [1, 2, 3, 4, 5].map(v => '<span style="left:' + ((v - 1) / 4 * 100) + '%">' + v + '</span>').join('');
+    const marker = ov == null ? '' : '<span class="marker" style="left:' + ((ov - 1) / 4 * 100).toFixed(2) + '%"></span>';
+
+    // advice, weakest first
+    const ranked = D.dims.map(d => ({ d, v: dimScore(d) })).filter(x => x.v != null).sort((a, b) => a.v - b.v);
+    const tips = ranked.map(x => {
+      const a = adviceFor(x.d, x.v);
+      if (!a) return '';
+      const lbl = f(a, 'link_label');
+      const learn = lbl
+        ? '<p class="learn">' + esc(t('learn_more')) + ': ' +
+          (a.link_url ? '<a href="' + esc(a.link_url) + '" target="_blank" rel="noopener">' + esc(lbl) + '</a>'
+                      : esc(lbl) + ' <span class="pending">(' + esc(t('link_pending')) + ')</span>') + '</p>'
+        : '';
+      return '<article class="tip"><span class="code">' + esc(x.d.id) + '</span><h3>' + esc(f(x.d, 'name')) + '</h3>' +
+        '<span class="chip">' + fmt(x.v) + '</span>' +
+        '<div class="body"><p>' + esc(f(a, 'advice')) + '</p>' + learn + '</div></article>';
+    }).join('');
+
+    const unanswered = c.n - c.a;
+    view.innerHTML =
+      '<div class="res">' +
+        '<section class="res-head">' +
+          '<p class="eyebrow">' + esc(t('results_title')) + '</p>' +
+          '<h1 class="display">' + esc(name || t('app_title')) + '</h1>' +
+          '<div class="sub">' +
+            (S.example ? '<span class="badge">' + esc(t('example_badge')) + '</span>' : '') +
+            '<span>' + esc(t('based_on', { a: c.scored, n: c.n })) + '</span>' +
+            (unanswered > 0 ? '<span>' + esc(t('unanswered_warn', { n: unanswered })) + '</span>' : '') +
+          '</div>' +
+        '</section>' +
+        '<section class="scorecard">' +
+          '<div class="big"><span class="label">' + esc(t('overall')) + '</span><span class="valrow"><span class="value">' + fmt(ov) + '</span><span class="of">/ 5</span></span></div>' +
+          '<div class="stagebox"><span class="label">' + esc(t('stage')) + '</span>' +
+            '<span class="pill">' + esc(f(st, 'name')) + '</span><p>' + esc(f(st, 'description')) + '</p></div>' +
+          '<div class="scale" aria-hidden="true"><div class="bandnames">' + bandNames + '</div><div class="track">' + bandBars + marker + '</div><div class="ticks">' + ticks + '</div></div>' +
+        '</section>' +
+        '<section id="cmpArea">' + compareHTML() + '</section>' +
+        '<section class="advice"><div class="advice-head"><h2>' + esc(t('next_steps')) + '</h2><p>' + esc(t('next_steps_sub')) + '</p></div>' +
+          '<div class="advice-list">' + tips + '</div></section>' +
+        '<section class="res-actions">' +
+          '<div class="actions">' +
+            '<button type="button" class="btn primary" data-action="copy">' + esc(t('copy_csv')) + '</button>' +
+            (EMBEDDED ? '' :
+              '<button type="button" class="btn" data-action="download">' + esc(t('download_csv')) + '</button>' +
+              '<button type="button" class="btn" data-action="print">' + esc(t('save_pdf')) + '</button>') +
+            '<button type="button" class="btn" data-action="edit">' + esc(t('edit_answers')) + '</button>' +
+            '<button type="button" class="btn quiet" data-action="ask-reset">' + esc(t('start_over')) + '</button>' +
+            '<span class="toast" id="toast" role="status"></span>' +
+          '</div>' +
+          '<div class="confirm" id="confirmBox" hidden><p>' + esc(t('confirm_reset')) + '</p>' +
+            '<button type="button" class="btn" data-action="cancel-reset">' + esc(t('confirm_no')) + '</button>' +
+            '<button type="button" class="btn primary" data-action="reset">' + esc(t('confirm_yes')) + '</button></div>' +
+          '<div class="copybox" id="copyBox" hidden><p>' + esc(t('copy_fallback')) + '</p><textarea id="copyText" readonly></textarea></div>' +
+        '</section>' +
+      '</div>';
+  }
+
+  function resultsCSV() {
+    const ov = overallScore(), st = stageFor(ov);
+    const cmp = D.bench[S.compare] || {};
+    const cell = v => { const s = String(v == null ? '' : v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const r2 = v => v == null ? '' : v.toFixed(2);
+    const rows = [['type', 'id', 'label', 'value', 'benchmark']];
+    rows.push(['meta', 'community', '', S.example ? t('example_name') : S.name, '']);
+    rows.push(['meta', 'date', '', new Date().toISOString().slice(0, 10), '']);
+    rows.push(['meta', 'language', '', S.lang, '']);
+    rows.push(['meta', 'compared_with', '', S.compare, '']);
+    rows.push(['overall', '', '', r2(ov), '']);
+    rows.push(['stage', st.id, f(st, 'name'), '', '']);
+    D.dims.forEach(d => rows.push(['dimension', d.id, f(d, 'name'), r2(dimScore(d)), cmp[d.id] ? r2(cmp[d.id].score) : '']));
+    D.qs.forEach(q => { const a = S.answers[q.id]; rows.push(['question', q.id, f(q, 'question'), a === 0 ? 'NA' : (a == null ? '' : a), '']); });
+    return rows.map(r => r.map(cell).join(',')).join('\r\n');
+  }
+
+  // ---------- render ----------
+  function render() {
+    renderChrome();
+    if (S.view === 'questions') renderQuestions();
+    else if (S.view === 'results') renderResults();
+    else renderIntro();
+  }
+  function go(viewName, step) {
+    S.view = viewName;
+    if (step != null) S.step = step;
+    if (viewName === 'results') S.compare = null;
+    persist();
+    render();
+    try { window.scrollTo({ top: 0 }); } catch (e) { window.scrollTo(0, 0); }
+  }
+
+  // ---------- events ----------
+  document.getElementById('langs').addEventListener('click', e => {
+    const b = e.target.closest('[data-lang]');
+    if (!b) return;
+    S.lang = b.getAttribute('data-lang');
+    persist();
+    render();
+  });
+
+  view.addEventListener('input', e => {
+    if (e.target.id === 'cname') { S.name = e.target.value; persist(); }
+  });
+
+  view.addEventListener('change', e => {
+    const el = e.target;
+    if (el.type === 'radio') {
+      if (S.example) { S.example = false; S.name = ''; }
+      S.answers[el.name] = Number(el.value);
+      persist();
+      refreshProgress();
+    } else if (el.id === 'cmpSel') {
+      S.compare = el.value;
+      document.getElementById('cmpArea').innerHTML = compareHTML();
+    }
+  });
+
+  view.addEventListener('click', e => {
+    const b = e.target.closest('[data-action]');
+    if (!b) return;
+    const act = b.getAttribute('data-action');
+    if (act === 'start') {
+      if (S.example) { S.answers = {}; S.example = false; }
+      const firstOpen = D.dims.findIndex(d => !dimProgress(d).done);
+      go('questions', firstOpen < 0 ? 0 : firstOpen);
+    } else if (act === 'example') {
+      S.answers = {};
+      D.example.forEach(r => { const v = num(r.answer); if (v != null) S.answers[r.question_id] = v; });
+      S.example = true;
+      go('results');
+    } else if (act === 'goto') go('questions', Number(b.getAttribute('data-step')));
+    else if (act === 'next') go('questions', S.step + 1);
+    else if (act === 'prev') go('questions', S.step - 1);
+    else if (act === 'results') go('results');
+    else if (act === 'edit') go('questions', 0);
+    else if (act === 'ask-reset') document.getElementById('confirmBox').hidden = false;
+    else if (act === 'cancel-reset') document.getElementById('confirmBox').hidden = true;
+    else if (act === 'reset') {
+      S.answers = {}; S.example = false; S.name = ''; S.step = 0;
+      go('intro');
+    } else if (act === 'copy') {
+      const text = resultsCSV();
+      const done = () => { const tEl = document.getElementById('toast'); tEl.textContent = t('copied'); setTimeout(() => { tEl.textContent = ''; }, 2500); };
+      const fallback = () => {
+        const box = document.getElementById('copyBox'); const ta = document.getElementById('copyText');
+        box.hidden = false; ta.value = text; ta.focus(); ta.select();
+      };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback();
+      } catch (err) { fallback(); }
+    } else if (act === 'download') {
+      const blob = new Blob(['﻿' + resultsCSV()], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'maturity-check-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } else if (act === 'print') {
+      window.print();
+    }
+  });
+
+  // ---------- start ----------
+  function showError(err) {
+    console.error(err);
+    view.innerHTML = '<div class="error"><p><strong>The data files could not be loaded.</strong></p>' +
+      '<p>Open the page through a web address (for example GitHub Pages or a local web server), not by double-clicking the file.</p>' +
+      '<p lang="el">Τα αρχεία δεδομένων δεν φορτώθηκαν. Ανοίξτε τη σελίδα μέσω διεύθυνσης ιστού και όχι με διπλό κλικ στο αρχείο.</p></div>';
+  }
+
+  // Looks for each file in the data folder first, then next to index.html
+  // (in case the CSV files were uploaded without their folder).
+  function getText(path) {
+    const get = p => fetch(p, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(p + ' (' + r.status + ')'); return r.text(); });
+    const flat = path.replace(/^data\//, '');
+    return get(path).catch(err => (flat !== path ? get(flat) : Promise.reject(err)));
+  }
+
+  Promise.all(Object.keys(FILES).map(k =>
+    getText(FILES[k]).then(txt => [k, parseCSV(txt)])
+  )).then(entries => {
+    entries.forEach(([k, v]) => { D[k] = v; });
+    prepare();
+    const had = restore();
+    if (!had) {
+      const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+      S.lang = D.langs.includes(nav) ? nav : 'en';
+    }
+    if (!D.langs.includes(S.lang)) S.lang = D.langs[0] || 'en';
+    render();
+  }).catch(showError);
+})();
+</script>
+
+</body>
+</html>
