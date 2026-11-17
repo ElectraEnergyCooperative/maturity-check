@@ -347,7 +347,6 @@ footer details[open] summary { margin-bottom: 10px; }
       </div>
       <div class="langs" id="langs" role="group" aria-label="Language"></div>
     </div>
-    <p class="proto" id="protoNote">Prototype</p>
   </div>
 </header>
 
@@ -521,7 +520,6 @@ footer details[open] summary { margin-bottom: 10px; }
     document.documentElement.lang = S.lang;
     document.getElementById('projectTag').textContent = t('project_tag');
     document.getElementById('appTitle').textContent = t('app_title');
-    document.getElementById('protoNote').textContent = t('prototype_note');
     const langs = document.getElementById('langs');
     langs.innerHTML = D.langs.map(l => {
       const r = D.uiMap.lang_label || {}; const nm = D.uiMap.lang_name || {};
