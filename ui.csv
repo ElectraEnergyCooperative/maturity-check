@@ -3,7 +3,6 @@ lang_label,EN,ΕΛ
 lang_name,English,Ελληνικά
 app_title,Energy Community Maturity Check,Έλεγχος Ωριμότητας Ενεργειακής Κοινότητας
 project_tag,ECHO · Community Benchmarking and Learning Toolkit,ECHO · Εργαλειοθήκη Συγκριτικής Αξιολόγησης και Μάθησης
-prototype_note,"Prototype. Sample questions and illustrative benchmark data, not real pilot results.","Πρωτότυπο. Ενδεικτικές ερωτήσεις και ενδεικτικά δεδομένα σύγκρισης, όχι πραγματικά αποτελέσματα πιλοτικών."
 intro_title,Where does your energy community stand?,Σε ποιο σημείο βρίσκεται η ενεργειακή σας κοινότητα;
 intro_text,"Answer {n} short questions across five areas. You get a maturity score for each area, a comparison with communities at a similar stage, and suggested next steps. It takes about 10 minutes.","Απαντήστε σε {n} σύντομες ερωτήσεις σε πέντε τομείς. Θα λάβετε βαθμολογία ωριμότητας ανά τομέα, σύγκριση με κοινότητες σε παρόμοιο στάδιο και προτεινόμενα επόμενα βήματα. Χρειάζονται περίπου 10 λεπτά."
 privacy_note,Your answers stay in this browser. Nothing is sent to or stored on a server.,Οι απαντήσεις σας μένουν σε αυτόν τον φυλλομετρητή. Τίποτα δεν αποστέλλεται ούτε αποθηκεύεται σε διακομιστή.
